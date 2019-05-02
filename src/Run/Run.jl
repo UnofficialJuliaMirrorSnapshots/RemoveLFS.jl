@@ -19,7 +19,7 @@ import ..process_delayed_error_list
 
 function run_removelfs_snapshots!!(
         ;
-        src_provider,
+        git_lfs_repos::AbstractDict,
         dst_provider,
         git_user_name,
         git_user_email,
@@ -38,31 +38,38 @@ function run_removelfs_snapshots!!(
         )::Nothing
     @info("Running RemoveLFS.Run.run_removelfs_snapshots!!")
 
-    all_src_organization_repos::Vector{String} = src_provider(:list_all_repos)()
+    all_src_dest_pairs::Vector{Types.SrcDestPair} = Types.SrcDestPair[
+        Types.SrcDestPair(
+            ;
+            source_url = x["source_url"],
+            destination_repo_name = x["destination_repo_name"],
+            ) for x in values(git_lfs_repos)
+        ]
+    sort!(all_src_dest_pairs)
+    unique!(all_src_dest_pairs)
+    sort!(all_src_dest_pairs)
 
-    unique!(all_src_organization_repos)
-    sort!(all_src_organization_repos)
     @debug(
         string(
-            "All repos in the source organization ",
-            "($(length(all_src_organization_repos))):",
+            "All source URLs in the list ",
+            "($(length(all_src_dest_pairs))):",
             )
         )
-    for i = 1:length(all_src_organization_repos)
+    for i = 1:length(all_src_dest_pairs)
         @debug(
-            "$(i). $(all_src_organization_repos[i])"
+            "$(i). $(all_src_dest_pairs[i].source_url)"
             )
     end
 
     if task == "all"
-        task_src_repos = all_src_organization_repos
+        task_src_dest_pairs = all_src_dest_pairs
     elseif Types._is_interval(task)
         task_interval::Types.AbstractInterval = Types._construct_interval(
             task
             )
-        @info(string("Using interval for stage 2: "),task_interval,)
-        task_src_repos = Common._names_that_fall_in_interval(
-            all_src_organization_repos,
+        @info(string("Using interval: "),task_interval,)
+        task_src_dest_pairs = Common._pairs_that_fall_in_interval(
+            all_src_dest_pairs,
             task_interval,
             )
     else
@@ -70,36 +77,37 @@ function run_removelfs_snapshots!!(
         delayederror("\"$(task)\" is not a valid task")
     end
 
-    unique!(task_src_repos)
-    sort!(task_src_repos)
+    unique!(task_src_dest_pairs)
+    sort!(task_src_dest_pairs)
     @debug(
         string(
-            "Source repos in the task interval ",
-            "($(length(task_src_repos))):",
+            "Source URLs in the task interval ",
+            "($(length(task_src_dest_pairs))):",
             )
         )
-    for i = 1:length(task_src_repos)
+    for i = 1:length(task_src_dest_pairs)
         @debug(
-            "$(i). $(task_src_repos[i])"
+            "$(i). $(task_src_dest_pairs[i].source_url)"
             )
     end
 
-    n = length(task_src_repos)
+    n = length(task_src_dest_pairs)
     for i = 1:n
-        repo_name = strip(task_src_repos[i])
+        pair = task_src_dest_pairs[i]
+        source_url = pair.source_url
+        destination_repo_name = pair.destination_repo_name
         @debug(
             string(
-                "Processing \"$(repo_name)\" ",
-                "(repo $(i) of $(n))",
+                "Processing \"$(source_url)\" ",
+                "(URL $(i) of $(n))",
                 )
             )
         if false
         else
-            if repo_name in do_not_push_to_these_destinations
+            if destination_repo_name in do_not_push_to_these_destinations
             else
                 Common._snapshot_repo!!(
-                    repo_name;
-                    src_provider = src_provider,
+                    pair;
                     dst_provider = dst_provider,
                     include_branches = include_branches,
                     exclude_branches = exclude_branches,

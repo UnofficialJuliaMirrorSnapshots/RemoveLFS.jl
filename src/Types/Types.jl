@@ -196,6 +196,48 @@ function _construct_interval(x::String)::AbstractInterval
     return result
 end
 
+struct SrcDestPair
+    source_url::String
+    destination_repo_name::String
+    function SrcDestPair(
+            source_url::String,
+            destination_repo_name::String,
+            )::SrcDestPair
+        correct_source_url = strip(source_url)
+        correct_destination_repo_name = strip(destination_repo_name)
+        result::SrcDestPair = new(
+            correct_source_url,
+            correct_destination_repo_name,
+            )
+        return result
+    end
+end
+
+function SrcDestPair(
+    ;
+    source_url::AbstractString,
+    destination_repo_name::String,
+    )::SrcDestPair
+    result::SrcDestPair = SrcDestPair(
+        convert(String, source_url),
+        convert(String, destination_repo_name),
+        )
+    return result
+end
+
+function Base.isless(
+        x::SrcDestPair,
+        y::SrcDestPair,
+        )::Bool
+    x_destination_repo_name::String = strip(x.destination_repo_name)
+    y_destination_repo_name::String = strip(y.destination_repo_name)
+    result::Bool = Base.isless(
+        x_destination_repo_name,
+        y_destination_repo_name,
+        )
+    return result
+end
+
 end # End submodule RemoveLFS.Types
 
 ##### End of file

@@ -59,7 +59,7 @@ echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST"
 
 julia $JULIA_FLAGS -e 'import Pkg; Pkg.resolve();'
 julia $JULIA_FLAGS -e 'import Pkg; Pkg.build("RemoveLFS");'
-julia $JULIA_FLAGS run-snapshots.jl --task "$TASK" $DRY_RUN
+julia $JULIA_FLAGS run-removelfs-snapshots.jl --task "$TASK" $DRY_RUN
 
 cat Project.toml
 cat Manifest.toml
