@@ -50,8 +50,9 @@ function _get_gitlfs_binary_path()::String
     return gitlfs
 end
 
-function git_version()::VersionNumber
-    git::String = _get_git_binary_path()
+function git_version(
+        git::String = _get_git_binary_path(),
+        )::VersionNumber
     a::String = convert(String,read(`$(git) --version`, String))
     b::String = convert(String, strip(a))
     c::Vector{SubString{String}} = split(b, "git version")
@@ -61,8 +62,9 @@ function git_version()::VersionNumber
     return f
 end
 
-function gitlfs_version()::VersionNumber
-    gitlfs::String = _get_gitlfs_binary_path()
+function gitlfs_version(
+        gitlfs::String = _get_gitlfs_binary_path(),
+        )::VersionNumber
     a::String = convert(String,read(`$(gitlfs) --version`, String))
     b::String = convert(String, strip(a))
     c::String = convert(String, split(b)[1])

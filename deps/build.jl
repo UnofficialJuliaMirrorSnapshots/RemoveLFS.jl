@@ -15,6 +15,35 @@ function _default_gitlfs_cmd()::String
     return result
 end
 
+function git_version(
+        git::String
+        )::VersionNumber
+    a::String = convert(String,read(`$(git) --version`, String))
+    b::String = convert(String, strip(a))
+    c::Vector{SubString{String}} = split(b, "git version")
+    d::String = convert(String,last(c))
+    e::String = convert(String, strip(d))
+    f::VersionNumber = VersionNumber(e)
+    return f
+end
+
+function gitlfs_version(
+        gitlfs::String
+        )::VersionNumber
+    a::String = convert(String,read(`$(gitlfs) --version`, String))
+    b::String = convert(String, strip(a))
+    c::String = convert(String, split(b)[1])
+    d::Vector{SubString{String}} = split(c, "git-lfs/",)
+    e::String = convert(String,last(d))
+    f::VersionNumber = VersionNumber(e)
+    return f
+end
+
+function _found_default_git_and_default_gitlfs()::Bool
+    result::Bool = _found_default_git() && _found_default_gitlfs()
+    return result
+end
+
 function _found_default_git()::Bool
     default_git_cmd::String = _default_git_cmd()
     found_default_git::Bool = try
@@ -22,7 +51,12 @@ function _found_default_git()::Bool
     catch
         false
     end
-    return found_default_git
+    git_version_parsed = isa(
+        git_version(default_git_cmd),
+        VersionNumber,
+        )
+    result = found_default_git && git_version_parsed
+    return result
 end
 
 function _found_default_gitlfs()::Bool
@@ -32,7 +66,12 @@ function _found_default_gitlfs()::Bool
     catch
         false
     end
-    return found_default_gitlfs
+    gitlfs_version_parsed = isa(
+        gitlfs_version(default_gitlfs_cmd),
+        VersionNumber,
+        )
+    result = found_default_gitlfs && gitlfs_version_parsed
+    return result
 end
 
 function _install_git()::String
@@ -75,50 +114,48 @@ function _install_gitlfs_conda()::String
     return gitlfs_cmd
 end
 
-function _build_git()::String
+function _build_git_and_build_gitlfs()::Tuple{String,String}
     install_git::Bool = lowercase(
         strip(get(ENV, "INSTALL_GIT", "false"))
         ) == lowercase(strip("true"))
-    found_default_git::Bool = _found_default_git()
-    if install_git
-        @info("INSTALL_GIT is true, so I will now install git.")
-        git_cmd = _install_git()
-    elseif found_default_git
-        @info("I found git on your system, so I will use that git.")
-        git_cmd = _default_git_cmd()
-    else
-        @info("I did not find git on your system, so I will now install git.")
-        git_cmd = _install_git()
-    end
-    return git_cmd
-end
-
-function _build_gitlfs()::String
     install_gitlfs::Bool = lowercase(
         strip(get(ENV, "INSTALL_GITLFS", "false"))
         ) == lowercase(strip("true"))
-    found_default_gitlfs::Bool = _found_default_gitlfs()
-    if install_gitlfs
-        @info("INSTALL_GITLFS is true, so I will now install git-lfs.")
+    found_default_git_and_default_gitlfs::Bool =
+        _found_default_git_and_default_gitlfs()
+    if install_git || install_gitlfs
+        @info(
+            string(
+                "At least one of INSTALL_GIT and INSTALL_GITLFS is true, ",
+                "So I will now install git and git-lfs.",
+                )
+            )
+        git_cmd = _install_git()
         gitlfs_cmd = _install_gitlfs()
-    elseif found_default_gitlfs
-        @info("I found git-lfs on your system, so I will use that git-lfs.")
+    elseif found_default_git_and_default_gitlfs
+        @info(
+            string(
+                "I found both git and git-lfs on your system, ",
+                "so I will use them.",
+                )
+            )
+        git_cmd = _default_git_cmd()
         gitlfs_cmd = _default_gitlfs_cmd()
     else
         @info(
             string(
-                "I did not find git-lfs on your system, ",
-                "so I will now install git-lfs.",
+                "I did not find both git and git-lfs on your system, ",
+                "so I will now install git.",
                 )
             )
+        git_cmd = _install_git()
         gitlfs_cmd = _install_gitlfs()
     end
-    return gitlfs_cmd
+    return git_cmd, gitlfs_cmd
 end
 
-function _build_organizationsnapshots()::Nothing
-    git_cmd = _build_git()
-    gitlfs_cmd = _build_gitlfs()
+function _build_removelfssnapshots()::Nothing
+    git_cmd, gitlfs_cmd = _build_git_and_build_gitlfs()
     build_jl_file_path = strip(
         abspath(
             strip(
@@ -168,6 +205,6 @@ function _build_organizationsnapshots()::Nothing
     return nothing
 end
 
-_build_organizationsnapshots()
+_build_removelfssnapshots()
 
 ##### End of file
