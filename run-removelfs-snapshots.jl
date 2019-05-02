@@ -28,6 +28,12 @@ include(
 include(
     joinpath(
         "config", "repositories",
+        "download-git-lfs-repos-list.jl",
+        )
+    )
+include(
+    joinpath(
+        "config", "repositories",
         "try-but-allow-failures-url-list.jl",
         )
     )
@@ -37,7 +43,7 @@ RemoveLFS.CommandLine.run_removelfs_snapshots_command_line!!(
     arguments = ARGS,
     git_user_name = GIT_USER_NAME,
     git_user_email = GIT_USER_EMAIL,
-    src_provider = src_provider,
+    git_lfs_repos = GIT_LFS_REPOS,
     dst_provider = dst_provider,
     include_branches = INCLUDE_BRANCHES,
     exclude_branches = EXCLUDE_BRANCHES,

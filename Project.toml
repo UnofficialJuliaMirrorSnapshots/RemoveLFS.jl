@@ -1,5 +1,5 @@
 name = "RemoveLFS"
-uuid = "44eb87bc-f37b-45e8-9f53-3bcb453a652d"
+uuid = "a262596c-dd27-4d54-b019-3619024addbd"
 authors = ["Dilum Aluthge <dilum@aluthge.com>"]
 version = "0.1.0-DEV"
 

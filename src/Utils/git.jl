@@ -23,6 +23,33 @@ function _get_git_binary_path()::String
     return git
 end
 
+function _get_gitlfs_binary_path()::String
+    deps_jl_file_path = package_directory("deps", "deps.jl")
+    if !isfile(deps_jl_file_path)
+        delayederror(
+            string(
+                "RemoveLFS.jl is not properly installed. ",
+                "Please run\nPkg.build(\"RemoveLFS\")",
+                )
+            )
+    end
+    include(deps_jl_file_path)
+    gitlfs::String = strip(string(gitlfs_cmd))
+    run(`$(gitlfs) --version`)
+    @debug(
+        "git-lfs command: ",
+        gitlfs,
+        )
+    git = _get_git_binary_path()
+    @debug("Attempting to run command: ", `$(git) lfs install`,)
+    run(`$(git) lfs install`)
+    @debug("Successfully ran command: ", `$(git) lfs install`,)
+    @debug("Attempting to run command: ", `$(gitlfs) install`,)
+    run(`$(gitlfs) install`)
+    @debug("Successfully command: ", `$(gitlfs) install`,)
+    return gitlfs
+end
+
 function git_version()::VersionNumber
     git::String = _get_git_binary_path()
     a::String = convert(String,read(`$(git) --version`, String))
@@ -30,6 +57,17 @@ function git_version()::VersionNumber
     c::Vector{SubString{String}} = split(b, "git version")
     d::String = convert(String,last(c))
     e::String = convert(String, strip(d))
+    f::VersionNumber = VersionNumber(e)
+    return f
+end
+
+function gitlfs_version()::VersionNumber
+    gitlfs::String = _get_gitlfs_binary_path()
+    a::String = convert(String,read(`$(gitlfs) --version`, String))
+    b::String = convert(String, strip(a))
+    c::String = convert(String, split(b)[1])
+    d::Vector{SubString{String}} = split(c, "git-lfs/",)
+    e::String = convert(String,last(d))
     f::VersionNumber = VersionNumber(e)
     return f
 end
@@ -223,11 +261,6 @@ function git_commit!(
             @warn(string("ignoring exception"), e2,)
         end
     end
-    # try
-    #
-    # catch e
-    #
-    # end
     return nothing
 end
 
@@ -409,6 +442,90 @@ function git_status_success()::Bool
         false
     end
     return result
+end
+
+function list_all_gitattributes_files(
+        root_path::AbstractString,
+        )::Vector{String}
+    list_of_gitattributes_files::Vector{String} = Vector{String}()
+    root_path_stripped::String = convert(String, strip(root_path))
+    for (rootdir, dirs, files) in walkdir(root_path_stripped)
+        for file in files
+            if strip(lowercase(file)) == ".gitattributes"
+                push!(
+                    list_of_gitattributes_files,
+                    joinpath(rootdir, file,),
+                    )
+            end
+        end
+    end
+    unique!(list_of_gitattributes_files)
+    sort!(list_of_gitattributes_files)
+    return list_of_gitattributes_files
+end
+
+function fix_single_gitattributes_file!(filename::String)::Nothing
+    temp_dir = mktempdir()
+    temp_gitattributes_file = joinpath(temp_dir, ".gitattributes",)
+    rm(
+        temp_gitattributes_file;
+        force = true,
+        recursive = true,
+        )
+    did_not_write_any_lines::Bool = true
+    open(temp_gitattributes_file, "w") do io
+        for line in eachline(filename)
+            if _keep_line_in_gitattributes_file(line)
+                @debug("Keeping line: ", line,)
+                println(io, line,)
+                did_not_write_any_lines = false
+            else
+                @debug("Discarding line: ", line,)
+            end
+        end
+        if did_not_write_any_lines
+            print(io, "\n\n",)
+        end
+    end
+    rm(
+        filename;
+        force = true,
+        recursive = true,
+        )
+    mv(
+        temp_gitattributes_file,
+        filename;
+        force = true,
+        )
+    rm(
+        temp_dir;
+        force = true,
+        recursive = true,
+        )
+    return nothing
+end
+
+function fix_all_gitattributes_files!(root_path::AbstractString)::Nothing
+    list_of_all_gitattributes_files = list_all_gitattributes_files(
+        root_path
+        )
+    fix_list_of_gitattributes_files!(list_of_all_gitattributes_files)
+    return nothing
+end
+
+function fix_list_of_gitattributes_files!(list::AbstractVector)::Nothing
+    for filename in list
+        fix_single_gitattributes_file!(filename)
+    end
+    return nothing
+end
+
+function _keep_line_in_gitattributes_file(line::AbstractString)::Bool
+    if occursin("lfs", lowercase(strip(line)))
+        return false
+    else
+        return true
+    end
 end
 
 ##### End of file

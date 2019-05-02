@@ -122,8 +122,7 @@ function _interval_contains_x(
 end
 
 function _snapshot_repo!!(
-        repo_name;
-        src_provider,
+        pair::Types.SrcDestPair;
         dst_provider,
         include_branches,
         exclude_branches,
@@ -133,28 +132,31 @@ function _snapshot_repo!!(
         is_dry_run::Bool,
         )::Nothing
     original_directory = pwd()
+    source_url = pair.source_url
+    destination_repo_name = pair.destination_repo_name
     @debug(
-        "Snapshotting repo: $(repo_name)",
+        "Snapshotting repo: $(destination_repo_name)",
         )
     git::String = Utils._get_git_binary_path()
+    gitlfs::String = Utils._get_gitlfs_binary_path()
     dst_provider(:create_repo)(
         Dict(
-            :repo_name => convert(String, repo_name),
+            :repo_name => convert(String, destination_repo_name),
             )
         )
     dst_url_with_auth = dst_provider(:get_destination_url)(
         ;
-        repo_name = convert(String, repo_name),
+        repo_name = convert(String, destination_repo_name),
         credentials = :with_auth,
         )
     dst_url_with_redacted_auth = dst_provider(:get_destination_url)(
         ;
-        repo_name = convert(String, repo_name),
+        repo_name = convert(String, destination_repo_name),
         credentials = :with_redacted_auth,
         )
     dst_url_without_auth = dst_provider(:get_destination_url)(
         ;
-        repo_name = convert(String, repo_name),
+        repo_name = convert(String, destination_repo_name),
         credentials = :without_auth,
         )
     temp_initialize_dst_parent = mktempdir()
@@ -191,7 +193,6 @@ function _snapshot_repo!!(
     cd(dst_repo_parent)
     dst_repo_git_clone_command = `$(git) clone $(dst_url_without_auth) DSTREPO`
     before = () -> rm(
-        # joinpath(temp_dir_repo_git_clone_mirror,"GITCLONEREPOREGULAR",);
         dst_repo_dir;
         force = true,
         recursive = true,
@@ -202,16 +203,10 @@ function _snapshot_repo!!(
         )
     cd(dst_repo_dir)
     run(`$(git) remote set-url origin --push $(dst_url_with_auth)`)
-
     src_repo_parent = mktempdir()
     src_repo_dir = joinpath(src_repo_parent, "SRCREPO",)
     cd(src_repo_parent)
-    src_url_without_auth = src_provider(:get_src_url)(
-        ;
-        repo_name = convert(String, repo_name),
-        credentials = :without_auth,
-        )
-    src_repo_git_clone_command = `$(git) clone $(src_url_without_auth) SRCREPO`
+    src_repo_git_clone_command = `$(git) clone $(source_url) SRCREPO`
     @info(
         "Attempting to run command",
         src_repo_git_clone_command,
@@ -220,7 +215,6 @@ function _snapshot_repo!!(
         )
     when_src_cloned = Dates.now(TimeZones.localzone(),)
     before = () -> rm(
-        # joinpath(temp_dir_repo_git_clone_mirror,"GITCLONEREPOREGULAR",);
         src_repo_dir;
         force = true,
         recursive = true,
@@ -303,15 +297,25 @@ function _snapshot_repo!!(
                         string(when_src_cloned)
                         )
                 end
+                Utils.fix_all_gitattributes_files!(pwd())
                 Utils.git_add_all!()
                 commit_message = string(
                     "Snapshot of branch $(branch)",
                     " taken on $(_when)",
-                    " from \"$(src_url_without_auth)\"",
+                    " from \"$(source_url)\"",
                     )
                 Utils.git_commit!(
                     ;
                     message = commit_message,
+                    committer_name = git_user_name,
+                    committer_email = git_user_email,
+                    allow_empty = false,
+                    )
+                Utils.fix_all_gitattributes_files!(pwd())
+                Utils.git_add_all!()
+                Utils.git_commit!(
+                    ;
+                    message = "Snapshot commit",
                     committer_name = git_user_name,
                     committer_email = git_user_email,
                     allow_empty = false,
@@ -330,13 +334,13 @@ function _snapshot_repo!!(
             run(`$(git) push -u --all`)
             when_pushed_to_dst = Dates.now(TimeZones.localzone(),)
             args1_gen_provider_description = Dict(
-                :source_url => src_url_without_auth,
+                :source_url => source_url,
                 :when => when_pushed_to_dst,
                 :time_zone => time_zone,
                 )
             repo_description_default::String = Utils.default_repo_description(
                 ;
-                from = src_url_without_auth,
+                from = source_url,
                 when = when_pushed_to_dst,
                 time_zone = time_zone,
                 )
@@ -373,7 +377,7 @@ function _snapshot_repo!!(
                 )
             args2_update_dst_description = Dict(
                 :repo_name =>
-                    convert(String, repo_name),
+                    convert(String, destination_repo_name),
                 :new_repo_description =>
                     convert(String, new_repo_description),
                 )
@@ -382,7 +386,7 @@ function _snapshot_repo!!(
                     "Attempting to update ",
                     "repo description.",
                     ),
-                repo_name,
+                destination_repo_name,
                 new_repo_description,
                 )
             dst_provider(:update_repo_description)(
@@ -407,6 +411,96 @@ function _snapshot_repo!!(
         recursive = true,
         )
     return nothing
+end
+
+function _src_dest_pair_to_string(x::Types.SrcDestPair)::String
+    result::String = string(
+        strip(x.source_url),
+        " ",
+        strip(x.destination_repo_name),
+        )
+    return result
+end
+
+function _src_dest_pair_list_to_string(
+        v::Vector{Types.SrcDestPair}
+        )::String
+    v_sorted_unique::Vector{Types.SrcDestPair} = sort(unique(v))
+    lines::Vector{String} = String[
+        _src_dest_pair_to_string(x) for x in v_sorted_unique
+        ]
+    result::String = string(
+        join(lines, "\n",),
+        "\n",
+        )
+    return result
+end
+
+function _string_to_src_dest_pair_list(
+        x::String
+        )::Vector{Types.SrcDestPair}
+    all_src_dest_pairs = Types.SrcDestPair[]
+    lines::Vector{String} = convert(
+        Vector{String},
+        split(x, "\n",),
+        )
+    for line in lines
+        columns::Vector{String} = convert(
+            Vector{String},
+            split(strip(line)),
+            )
+        if length(columns) == 2
+            source_url::String = strip(columns[1])
+            destination_repo_name::String = strip(columns[2])
+            src_dest_pair::Types.SrcDestPair = Types.SrcDestPair(
+                ;
+                source_url = source_url,
+                destination_repo_name = destination_repo_name,
+                )
+            push!(all_src_dest_pairs, src_dest_pair,)
+        end
+    end
+    src_dest_pairs_sorted_unique::Vector{Types.SrcDestPair} = sort(
+        unique(
+            all_src_dest_pairs
+            )
+        )
+    return src_dest_pairs_sorted_unique
+end
+
+function _interval_contains_x(
+        interval::Types.AbstractInterval,
+        pair::Types.SrcDestPair,
+        )::Bool
+    result::Bool = _interval_contains_x(
+        interval,
+        pair.destination_repo_name,
+        )
+    return result
+end
+
+function _pairs_that_fall_in_interval(
+        list_of_pairs::Vector{Types.SrcDestPair},
+        interval::Types.AbstractInterval,
+        )::Vector{Types.SrcDestPair}
+    ith_pair_falls_in_interval::Vector{Bool} = Vector{Bool}(
+        undef,
+        length(list_of_pairs),
+        )
+    for i = 1:length(list_of_pairs)
+        ith_pair = list_of_pairs[i]
+        ith_pair_falls_in_interval[i] = _interval_contains_x(
+            interval,
+            ith_pair,
+            )
+    end
+    full_sublist::Vector{Types.SrcDestPair} = list_of_pairs[
+        ith_pair_falls_in_interval
+        ]
+    unique_sorted_sublist::Vector{Types.SrcDestPair} = sort(
+        unique(full_sublist)
+        )
+    return unique_sorted_sublist
 end
 
 end # End submodule RemoveLFS.Common

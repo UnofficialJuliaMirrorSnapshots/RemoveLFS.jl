@@ -1,14 +1,14 @@
-# RemoveLFS.jl - Take "snapshots" of the main branches of every repository in a GitHub organization
+# RemoveLFS.jl - Take "snapshots" of the main branches of repositories that use Git LFS
 
 <table>
     <tbody>
         <tr>
             <td>Travis CI</td>
-            <td><a href="https://travis-ci.com/UnofficialJuliaMirrorRemoveLFS/RemoveLFS.jl/branches"><img src="https://travis-ci.com/UnofficialJuliaMirrorRemoveLFS/RemoveLFS.jl.svg?branch=master"></a></td>
+            <td><a href="https://travis-ci.com/UnofficialJuliaMirrorSnapshots/RemoveLFS.jl/branches"><img src="https://travis-ci.com/UnofficialJuliaMirrorSnapshots/RemoveLFS.jl.svg?branch=master"></a></td>
         </tr>
         <tr>
             <td>Codecov</td>
-            <td><a href="https://codecov.io/gh/UnofficialJuliaMirrorRemoveLFS/RemoveLFS.jl"><img src="https://codecov.io/gh/UnofficialJuliaMirrorRemoveLFS/RemoveLFS.jl/branch/master/graph/badge.svg" /></a></td>
+            <td><a href="https://codecov.io/gh/UnofficialJuliaMirrorSnapshots/RemoveLFS.jl"><img src="https://codecov.io/gh/UnofficialJuliaMirrorSnapshots/RemoveLFS.jl/branch/master/graph/badge.svg" /></a></td>
         </tr>
         <tr>
             <td>Project Status</td>
@@ -28,8 +28,8 @@ Julia package mirrors and snapshots hosted at:
 
 | | Mirrors | RemoveLFS |
 | ------ | ------- | --------- |
-| GitHub | [https://github.com/UnofficialJuliaMirror](https://github.com/UnofficialJuliaMirror) | [https://github.com/UnofficialJuliaMirrorRemoveLFS](https://github.com/UnofficialJuliaMirrorRemoveLFS) |
-| GitLab | [https://gitlab.com/UnofficialJuliaMirror](https://gitlab.com/UnofficialJuliaMirror) | [https://gitlab.com/UnofficialJuliaMirrorRemoveLFS](https://gitlab.com/UnofficialJuliaMirrorRemoveLFS) |
-| Bitbucket | [https://bitbucket.org/UnofficialJuliaMirror](https://bitbucket.org/UnofficialJuliaMirror) | [https://bitbucket.org/UnofficialJuliaMirrorRemoveLFS](https://bitbucket.org/UnofficialJuliaMirrorRemoveLFS) |
+| GitHub | [https://github.com/UnofficialJuliaMirror](https://github.com/UnofficialJuliaMirror) | [https://github.com/UnofficialJuliaMirrorSnapshots](https://github.com/UnofficialJuliaMirrorSnapshots) |
+| GitLab | [https://gitlab.com/UnofficialJuliaMirror](https://gitlab.com/UnofficialJuliaMirror) | [https://gitlab.com/UnofficialJuliaMirrorSnapshots](https://gitlab.com/UnofficialJuliaMirrorSnapshots) |
+| Bitbucket | [https://bitbucket.org/UnofficialJuliaMirror](https://bitbucket.org/UnofficialJuliaMirror) | [https://bitbucket.org/UnofficialJuliaMirrorSnapshots](https://bitbucket.org/UnofficialJuliaMirrorSnapshots) |
 
 TODO: Write instructions.

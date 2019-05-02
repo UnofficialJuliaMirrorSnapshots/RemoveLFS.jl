@@ -23,7 +23,7 @@ function run_removelfs_snapshots_command_line!!(
         arguments::Vector{String} = String[],
         git_user_name,
         git_user_email,
-        src_provider,
+        git_lfs_repos::AbstractDict,
         dst_provider,
         include_branches,
         exclude_branches,
@@ -54,7 +54,7 @@ function run_removelfs_snapshots_command_line!!(
         ;
         include_branches = include_branches,
         exclude_branches = exclude_branches,
-        src_provider = src_provider,
+        git_lfs_repos = git_lfs_repos,
         dst_provider = dst_provider,
         git_user_name = git_user_name,
         git_user_email = git_user_email,
