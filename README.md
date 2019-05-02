@@ -21,15 +21,4 @@
     </tbody>
 </table>
 
-RemoveLFS.jl is a Julia application for taking "snapshots" of the main branches of every repository in a GitHub organization.
-
-RemoveLFS.jl (and its sibling project, [MirrorUpdater.jl](https://github.com/UnofficialJuliaMirror/MirrorUpdater.jl)) are used to maintain the
-Julia package mirrors and snapshots hosted at:
-
-| | Mirrors | RemoveLFS |
-| ------ | ------- | --------- |
-| GitHub | [https://github.com/UnofficialJuliaMirror](https://github.com/UnofficialJuliaMirror) | [https://github.com/UnofficialJuliaMirrorSnapshots](https://github.com/UnofficialJuliaMirrorSnapshots) |
-| GitLab | [https://gitlab.com/UnofficialJuliaMirror](https://gitlab.com/UnofficialJuliaMirror) | [https://gitlab.com/UnofficialJuliaMirrorSnapshots](https://gitlab.com/UnofficialJuliaMirrorSnapshots) |
-| Bitbucket | [https://bitbucket.org/UnofficialJuliaMirror](https://bitbucket.org/UnofficialJuliaMirror) | [https://bitbucket.org/UnofficialJuliaMirrorSnapshots](https://bitbucket.org/UnofficialJuliaMirrorSnapshots) |
-
-TODO: Write instructions.
+RemoveLFS.jl is a Julia application for taking "snapshots" of the main branches of repositories that use Git Large File Storage (LFS).
