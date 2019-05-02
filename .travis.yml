@@ -14,15 +14,15 @@ git:
   depth: 99999999
 jobs:
   include:
-    # -
-    #   name: runtests-compiled-modules-no
-    #   script: "./ci/travis/runtests.sh \"no\""
-    # -
-    #   name: runtests-compiled-modules-yes
-    #   script: "./ci/travis/runtests.sh \"yes\""
-    # -
-    #   name: "dry run [,) GitHub"
-    #   script: "./ci/travis/script.sh \"GITHUB\" \"[,)\" \"FORCE_DRY_RUN\""
+    -
+      name: runtests-compiled-modules-no
+      script: "./ci/travis/runtests.sh \"no\""
+    -
+      name: runtests-compiled-modules-yes
+      script: "./ci/travis/runtests.sh \"yes\""
+    -
+      name: "dry run [,) GitHub"
+      script: "./ci/travis/script.sh \"GITHUB\" \"[,)\" \"FORCE_DRY_RUN\""
     -
       name: "[,) GitHub"
       script: "./ci/travis/script.sh \"GITHUB\" \"[,)\""
