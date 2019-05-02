@@ -1,6 +1,8 @@
 const DO_NOT_PUSH_TO_THESE_DESTINATIONS = String[
     "MirrorUpdater",
     "MirrorUpdater.jl",
+    "UnofficialJuliaMirror/MirrorUpdater",
+    "UnofficialJuliaMirror/MirrorUpdater.jl",
     "UnofficialJuliaMirrorSnapshots/MirrorUpdater",
     "UnofficialJuliaMirrorSnapshots/MirrorUpdater.jl",
     "UnofficialJuliaMirrorBot/MirrorUpdater",
@@ -8,6 +10,8 @@ const DO_NOT_PUSH_TO_THESE_DESTINATIONS = String[
     #
     "Snapshots",
     "Snapshots.jl",
+    "UnofficialJuliaMirror/Snapshots",
+    "UnofficialJuliaMirror/Snapshots.jl",
     "UnofficialJuliaMirrorSnapshots/Snapshots",
     "UnofficialJuliaMirrorSnapshots/Snapshots.jl",
     "UnofficialJuliaMirrorBot/Snapshots",
@@ -15,6 +19,8 @@ const DO_NOT_PUSH_TO_THESE_DESTINATIONS = String[
     #
     "RemoveLFS",
     "RemoveLFS.jl",
+    "UnofficialJuliaMirror/RemoveLFS",
+    "UnofficialJuliaMirror/RemoveLFS.jl",
     "UnofficialJuliaMirrorSnapshots/RemoveLFS",
     "UnofficialJuliaMirrorSnapshots/RemoveLFS.jl",
     "UnofficialJuliaMirrorBot/RemoveLFS",
