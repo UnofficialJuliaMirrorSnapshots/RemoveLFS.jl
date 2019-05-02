@@ -15,7 +15,7 @@ function _default_gitlfs_cmd()::String
     return result
 end
 
-function git_version(
+function _get_git_version(
         git::String
         )::VersionNumber
     a::String = convert(String,read(`$(git) --version`, String))
@@ -27,7 +27,7 @@ function git_version(
     return f
 end
 
-function gitlfs_version(
+function _get_gitlfs_version(
         gitlfs::String
         )::VersionNumber
     a::String = convert(String,read(`$(gitlfs) --version`, String))
@@ -51,10 +51,14 @@ function _found_default_git()::Bool
     catch
         false
     end
-    git_version_parsed = isa(
-        git_version(default_git_cmd),
-        VersionNumber,
-        )
+    git_version_parsed::Bool = try
+        isa(
+            _get_git_version(default_git_cmd),
+            VersionNumber,
+            )
+    catch
+        false
+    end
     result = found_default_git && git_version_parsed
     return result
 end
@@ -66,10 +70,14 @@ function _found_default_gitlfs()::Bool
     catch
         false
     end
-    gitlfs_version_parsed = isa(
-        gitlfs_version(default_gitlfs_cmd),
-        VersionNumber,
-        )
+    gitlfs_version_parsed::Bool = try
+        isa(
+            _get_gitlfs_version(default_gitlfs_cmd),
+            VersionNumber,
+            )
+    catch
+        false
+    end
     result = found_default_gitlfs && gitlfs_version_parsed
     return result
 end
