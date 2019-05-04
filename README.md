@@ -22,3 +22,5 @@
 </table>
 
 RemoveLFS.jl is a Julia application for taking "snapshots" of the main branches of repositories that use Git Large File Storage (LFS).
+
+TODO: Write instructions.
