@@ -25,9 +25,9 @@ jobs:
     -
       name: "[,) GitHub"
       script: "./ci/travis/script.sh \"GITHUB\" \"[,)\""
-   -
-     name: "[,) GitLab"
-     script: "./ci/travis/script.sh \"GITLAB\" \"[,)\""
+    -
+      name: "[,) GitLab"
+      script: "./ci/travis/script.sh \"GITLAB\" \"[,)\""
     -
       name: "[,) Bitbucket"
       script: "./ci/travis/script.sh \"BITBUCKET\" \"[,)\""
