@@ -1,7 +1,7 @@
 name = "RemoveLFS"
 uuid = "a262596c-dd27-4d54-b019-3619024addbd"
 authors = ["Dilum Aluthge <dilum@aluthge.com>"]
-version = "0.2.0-DEV"
+version = "0.2.0"
 
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
