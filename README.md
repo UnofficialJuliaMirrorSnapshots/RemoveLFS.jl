@@ -16,6 +16,7 @@ src="https://travis-ci.com/UnofficialJuliaMirrorSnapshots/RemoveLFS.jl.svg?branc
 href="https://codecov.io/gh/UnofficialJuliaMirrorSnapshots/RemoveLFS.jl">
 <img
 src="https://codecov.io/gh/UnofficialJuliaMirrorSnapshots/RemoveLFS.jl/branch/master/graph/badge.svg">
+</a>
 </p>
 
 <p>RemoveLFS.jl is a Julia application for taking "snapshots" of the main branches of repositories that use Git Large File Storage (LFS).</p>
